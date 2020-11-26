@@ -3,10 +3,12 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCssAssetsWebpackPlugin = require("optimize-css-assets-webpack-plugin");
+const TerserWebpackPlugin = require("terser-webpack-plugin");
+const mode = process.env.NODE_ENV || "development";
 
 module.exports = {
-  // TODO: 환경변수 NODE_ENV에 따라 development나 production 값을 설정하세요 
-  mode: "development",
+  mode,
   entry: {
     main: "./src/app.js"
   },
@@ -21,6 +23,24 @@ module.exports = {
       "/api": "http://localhost:8081"
     },
     hot: true
+  },
+  optimization: {
+    minimizer:
+      mode === "production"
+        ? [
+            new OptimizeCssAssetsWebpackPlugin(),
+            new TerserWebpackPlugin({
+              terserOptions: {
+                compress: {
+                  drop_console: true
+                }
+              }
+            })
+          ]
+        : [],
+    splitChunks: {
+      chunks: "all"
+    }
   },
   module: {
     rules: [
@@ -73,5 +93,5 @@ module.exports = {
       ? [new MiniCssExtractPlugin({ filename: `[name].css` })]
       : [])
   ]
-  // TODO: 여기에 최적화 설정을 구성하세요 
+  // TODO: 여기에 최적화 설정을 구성하세요
 };

@@ -5,6 +5,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCssAssetsWebpackPlugin = require("optimize-css-assets-webpack-plugin");
 const TerserWebpackPlugin = require("terser-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const mode = process.env.NODE_ENV || "development";
 
 module.exports = {
@@ -25,6 +26,7 @@ module.exports = {
     hot: true
   },
   optimization: {
+    minimize: true,
     minimizer:
       mode === "production"
         ? [
@@ -91,7 +93,24 @@ module.exports = {
     new CleanWebpackPlugin(),
     ...(process.env.NODE_ENV === "production"
       ? [new MiniCssExtractPlugin({ filename: `[name].css` })]
-      : [])
-  ]
+      : []),
+    // new CopyWebpackPlugin([
+    //   {
+    //     from: "./node_modules/axios/dist/axios.min.js",
+    //     to: "./axios.min.js" // ./dist/axios.mon.js 로 번들됨
+    //   }
+    // ])
+    new CopyPlugin({
+      patterns: [
+        {
+          from: "./node_modules/axios/dist/axios.min.js",
+          to: "./axios.min.js" // ./dist/axios.mon.js 로 번들됨
+        }
+      ]
+    })
+  ],
+  externals: {
+    axios: "axios"
+  }
   // TODO: 여기에 최적화 설정을 구성하세요
 };
